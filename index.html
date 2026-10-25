@@ -5,32 +5,94 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Apu's Notes</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    body { font-family: system-ui, -apple-system, sans-serif; }
+    .card-urgent { border-left: 4px solid #ef4444; }
+    .card-work { border-left: 4px solid #3b82f6; }
+    .card-personal { border-left: 4px solid #10b981; }
+    .card-general { border-left: 4px solid #6b7280; }
+  </style>
 </head>
-<body class="bg-gray-900 text-white min-h-screen p-4 flex flex-col items-center">
-  <div class="w-full max-w-md">
-    <header class="flex justify-between items-center py-4 border-b border-gray-700">
-      <h1 class="text-2xl font-bold tracking-wide">📝 Apu's Notes</h1>
-      <button id="loginBtn" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-semibold">লগইন</button>
-      <div id="userSection" class="hidden flex items-center gap-2">
-        <span id="userName" class="text-xs text-gray-300"></span>
-        <button id="logoutBtn" class="bg-red-500/20 text-red-400 px-3 py-1 rounded text-xs">লগআউট</button>
+<body class="bg-gray-900 text-gray-100 min-h-screen p-4 flex flex-col items-center pb-20">
+  <div class="w-full max-w-lg">
+    <!-- Header -->
+    <header class="flex justify-between items-center py-4 border-b border-gray-800">
+      <div class="flex items-center gap-2">
+        <span class="text-2xl">📝</span>
+        <h1 class="text-xl font-bold tracking-wide">Apu's Notes</h1>
+      </div>
+      <button id="loginBtn" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl text-sm font-semibold transition">লগইন</button>
+      <div id="userSection" class="hidden flex items-center gap-2.5">
+        <img id="userAvatar" src="" alt="User" class="w-8 h-8 rounded-full border border-gray-600 object-cover hidden">
+        <span id="userName" class="text-xs text-gray-300 font-medium"></span>
+        <button id="logoutBtn" class="bg-red-500/20 text-red-400 hover:bg-red-500/30 px-3 py-1.5 rounded-lg text-xs font-medium transition">লগআউট</button>
       </div>
     </header>
 
-    <form id="noteForm" class="mt-6 flex gap-2">
-      <input type="text" id="noteInput" placeholder="নতুন কিছু লিখুন..." required class="flex-1 bg-gray-800 text-white px-4 py-2 rounded-lg focus:outline-none border border-gray-700 focus:border-blue-500 text-sm">
-      <button type="submit" class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg font-semibold text-sm">+</button>
-    </form>
+    <!-- Main Content Area -->
+    <main id="appContent" class="hidden">
+      <!-- Search Bar -->
+      <div class="mt-4 relative">
+        <i class="fa-solid fa-magnifying-glass absolute left-3 top-3 text-gray-400 text-sm"></i>
+        <input type="text" id="searchInput" placeholder="নোট খুঁজুন..." class="w-full bg-gray-800 text-white pl-9 pr-4 py-2.5 rounded-xl border border-gray-700 focus:outline-none focus:border-blue-500 text-sm">
+      </div>
 
-    <div id="notesList" class="mt-6 flex flex-col gap-3">
-      <p class="text-gray-400 text-center text-sm">লোড হচ্ছে...</p>
+      <!-- Add/Edit Note Form -->
+      <form id="noteForm" class="mt-4 bg-gray-800 p-4 rounded-2xl border border-gray-700 shadow-lg">
+        <input type="hidden" id="editNoteId" value="">
+        <textarea id="noteInput" rows="3" placeholder="নতুন কিছু লিখুন..." required class="w-full bg-gray-900 text-white p-3 rounded-xl border border-gray-700 focus:outline-none focus:border-blue-500 text-sm resize-none"></textarea>
+        
+        <div class="mt-3 flex flex-wrap justify-between items-center gap-2">
+          <!-- Category Selector -->
+          <div class="flex items-center gap-1.5">
+            <label class="text-xs text-gray-400">ক্যাটাগরি:</label>
+            <select id="categorySelect" class="bg-gray-900 text-xs text-white border border-gray-700 rounded-lg px-2 py-1.5 focus:outline-none">
+              <option value="general">সাধারণ ⚪</option>
+              <option value="personal">ব্যক্তিগত 🟢</option>
+              <option value="work">কাজের 🔵</option>
+              <option value="urgent">জরুরি 🔴</option>
+            </select>
+          </div>
+
+          <div class="flex items-center gap-2">
+            <button type="button" id="cancelEditBtn" class="hidden text-xs text-gray-400 hover:text-white px-3 py-2">বাতিল</button>
+            <button type="submit" id="submitBtn" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-1.5 rounded-xl text-xs font-semibold transition flex items-center gap-1.5">
+              <i class="fa-solid fa-plus"></i> <span id="submitBtnText">নোট যোগ করুন</span>
+            </button>
+          </div>
+        </div>
+      </form>
+
+      <!-- Notes Count & Status -->
+      <div class="mt-6 flex justify-between items-center text-xs text-gray-400 px-1">
+        <span id="notesCount">মোট নোট: ০</span>
+        <span class="text-gray-500">স্বয়ংক্রিয় ক্লাউড সিঙ্ক</span>
+      </div>
+
+      <!-- Notes List -->
+      <div id="notesList" class="mt-3 flex flex-col gap-3">
+        <p class="text-gray-500 text-center text-sm py-6">লোড হচ্ছে...</p>
+      </div>
+    </main>
+
+    <!-- Signed Out Alert -->
+    <div id="loggedOutView" class="mt-16 text-center py-10">
+      <div class="text-5xl mb-3">🔒</div>
+      <h2 class="text-lg font-semibold text-white">নোট অ্যাক্সেস করতে লগইন করুন</h2>
+      <p class="text-xs text-gray-400 mt-1">আপনার ডেটা ক্লাউডে সুরক্ষিত থাকবে</p>
     </div>
+  </div>
+
+  <!-- Notification Toast -->
+  <div id="toast" class="fixed bottom-6 bg-gray-800 text-white border border-gray-700 px-4 py-2 rounded-xl text-xs shadow-2xl transition transform translate-y-20 opacity-0 pointer-events-none">
+    কপি হয়েছে!
   </div>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-    import { getFirestore, collection, addDoc, query, where, onSnapshot, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+    import { getFirestore, collection, addDoc, updateDoc, query, where, onSnapshot, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyCJXc8miGg_6bAZCb_SpYfGelwzxhA3bpw",
@@ -42,91 +104,225 @@
       measurementId: "G-T6ELLRKVM4"
     };
 
-    try {
-      const app = initializeApp(firebaseConfig);
-      const auth = getAuth(app);
-      const db = getFirestore(app);
-      const provider = new GoogleAuthProvider();
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+    const provider = new GoogleAuthProvider();
 
-      let currentUser = null;
+    let currentUser = null;
+    let allNotes = [];
 
-      const loginBtn = document.getElementById("loginBtn");
-      const logoutBtn = document.getElementById("logoutBtn");
-      const userSection = document.getElementById("userSection");
-      const userName = document.getElementById("userName");
-      const noteForm = document.getElementById("noteForm");
-      const noteInput = document.getElementById("noteInput");
-      const notesList = document.getElementById("notesList");
+    const loginBtn = document.getElementById("loginBtn");
+    const logoutBtn = document.getElementById("logoutBtn");
+    const userSection = document.getElementById("userSection");
+    const userName = document.getElementById("userName");
+    const userAvatar = document.getElementById("userAvatar");
+    const appContent = document.getElementById("appContent");
+    const loggedOutView = document.getElementById("loggedOutView");
+    const noteForm = document.getElementById("noteForm");
+    const noteInput = document.getElementById("noteInput");
+    const editNoteId = document.getElementById("editNoteId");
+    const categorySelect = document.getElementById("categorySelect");
+    const cancelEditBtn = document.getElementById("cancelEditBtn");
+    const submitBtnText = document.getElementById("submitBtnText");
+    const notesList = document.getElementById("notesList");
+    const searchInput = document.getElementById("searchInput");
+    const notesCount = document.getElementById("notesCount");
+    const toast = document.getElementById("toast");
 
-      loginBtn.onclick = () => signInWithPopup(auth, provider).catch(err => alert("Login Error: " + err.message));
-      logoutBtn.onclick = () => signOut(auth);
+    loginBtn.onclick = () => signInWithPopup(auth, provider).catch(err => alert("Login Error: " + err.message));
+    logoutBtn.onclick = () => signOut(auth);
 
-      onAuthStateChanged(auth, (user) => {
-        currentUser = user;
-        if (user) {
-          userSection.classList.remove("hidden");
-          loginBtn.classList.add("hidden");
-          userName.innerText = user.displayName || "User";
-          loadNotes(user.uid);
+    onAuthStateChanged(auth, (user) => {
+      currentUser = user;
+      if (user) {
+        userSection.classList.remove("hidden");
+        loginBtn.classList.add("hidden");
+        appContent.classList.remove("hidden");
+        loggedOutView.classList.add("hidden");
+        userName.innerText = user.displayName || "User";
+        
+        if (user.photoURL) {
+          userAvatar.src = user.photoURL;
+          userAvatar.classList.remove("hidden");
         } else {
-          userSection.classList.add("hidden");
-          loginBtn.classList.remove("hidden");
-          notesList.innerHTML = "<p class='text-gray-400 text-center text-sm'>নোট সেভ করতে লগইন করুন</p>";
+          userAvatar.classList.add("hidden");
         }
-      });
+        
+        loadNotes(user.uid);
+      } else {
+        userSection.classList.add("hidden");
+        loginBtn.classList.remove("hidden");
+        appContent.classList.add("hidden");
+        loggedOutView.classList.remove("hidden");
+        userAvatar.classList.add("hidden");
+        allNotes = [];
+      }
+    });
 
-      noteForm.onsubmit = async (e) => {
-        e.preventDefault();
-        const text = noteInput.value.trim();
-        if (!text || !currentUser) return;
-        try {
+    function showToast(message) {
+      toast.innerText = message;
+      toast.classList.remove("translate-y-20", "opacity-0");
+      setTimeout(() => {
+        toast.classList.add("translate-y-20", "opacity-0");
+      }, 2000);
+    }
+
+    noteForm.onsubmit = async (e) => {
+      e.preventDefault();
+      const text = noteInput.value.trim();
+      const category = categorySelect.value;
+      const editingId = editNoteId.value;
+
+      if (!text || !currentUser) return;
+
+      try {
+        if (editingId) {
+          await updateDoc(doc(db, "notes", editingId), {
+            text: text,
+            category: category,
+            updatedAt: Date.now()
+          });
+          resetForm();
+          showToast("নোট আপডেট করা হয়েছে!");
+        } else {
           await addDoc(collection(db, "notes"), {
             uid: currentUser.uid,
             text: text,
+            category: category,
+            isPinned: false,
             createdAt: Date.now()
           });
-          noteInput.value = "";
-        } catch (err) {
-          alert("Error: " + err.message);
+          resetForm();
+          showToast("নতুন নোট যোগ করা হয়েছে!");
         }
-      };
+      } catch (err) {
+        alert("Error: " + err.message);
+      }
+    };
 
-      function loadNotes(uid) {
-        const q = query(collection(db, "notes"), where("uid", "==", uid));
-        onSnapshot(q, (snapshot) => {
-          notesList.innerHTML = "";
-          if (snapshot.empty) {
-            notesList.innerHTML = "<p class='text-gray-500 text-center text-sm'>কোনো নোট নেই</p>";
-            return;
-          }
-          const docs = [];
-          snapshot.forEach((docSnap) => {
-            docs.push({ id: docSnap.id, ...docSnap.data() });
-          });
-          docs.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+    cancelEditBtn.onclick = resetForm;
 
-          docs.forEach((item) => {
-            const card = document.createElement("div");
-            card.className = "bg-gray-800 p-4 rounded-xl flex justify-between items-center shadow border border-gray-700";
-            card.innerHTML = `
-              <p class="text-white text-sm break-words">${item.text}</p>
-              <button onclick="window.deleteNote('${item.id}')" class="text-red-400 hover:text-red-600 ml-4 font-bold text-xs">মুছুন</button>
-            `;
-            notesList.appendChild(card);
-          });
-        }, (error) => {
-          console.error(error);
-          notesList.innerHTML = "<p class='text-red-400 text-center text-sm'>ডাটাবেজ লোড হচ্ছে না</p>";
+    function resetForm() {
+      editNoteId.value = "";
+      noteInput.value = "";
+      categorySelect.value = "general";
+      submitBtnText.innerText = "নোট যোগ করুন";
+      cancelEditBtn.classList.add("hidden");
+    }
+
+    function formatDate(timestamp) {
+      if (!timestamp) return "";
+      const d = new Date(timestamp);
+      return d.toLocaleDateString("bn-BD", { day: "numeric", month: "short", year: "numeric" }) + " " + d.toLocaleTimeString("bn-BD", { hour: "2-digit", minute: "2-digit" });
+    }
+
+    function loadNotes(uid) {
+      const q = query(collection(db, "notes"), where("uid", "==", uid));
+      onSnapshot(q, (snapshot) => {
+        allNotes = [];
+        snapshot.forEach((docSnap) => {
+          allNotes.push({ id: docSnap.id, ...docSnap.data() });
         });
+        renderNotes();
+      }, (error) => {
+        console.error(error);
+        notesList.innerHTML = "<p class='text-red-400 text-center text-sm'>ডাটাবেজ লোড হচ্ছে না</p>";
+      });
+    }
+
+    searchInput.oninput = () => renderNotes();
+
+    function renderNotes() {
+      const searchTerm = searchInput.value.toLowerCase();
+      let filtered = allNotes.filter(n => (n.text || "").toLowerCase().includes(searchTerm));
+
+      filtered.sort((a, b) => {
+        if (b.isPinned !== a.isPinned) return (b.isPinned ? 1 : 0) - (a.isPinned ? 1 : 0);
+        return (b.createdAt || 0) - (a.createdAt || 0);
+      });
+
+      notesCount.innerText = `মোট নোট: ${filtered.length}`;
+      notesList.innerHTML = "";
+
+      if (filtered.length === 0) {
+        notesList.innerHTML = "<p class='text-gray-500 text-center text-sm py-6'>কোনো নোট পাওয়া যায়নি</p>";
+        return;
       }
 
-      window.deleteNote = async (id) => {
-        await deleteDoc(doc(db, "notes", id));
-      };
-    } catch (e) {
-      console.error(e);
-      document.getElementById("notesList").innerHTML = "<p class='text-red-400 text-center text-sm'>কনফিগ এরর</p>";
+      filtered.forEach((note) => {
+        const categoryClass = `card-${note.category || 'general'}`;
+        const card = document.createElement("div");
+        card.className = `bg-gray-800 p-4 rounded-2xl shadow border border-gray-700 flex flex-col gap-2 ${categoryClass}`;
+        
+        card.innerHTML = `
+          <div class="flex justify-between items-start gap-2">
+            <p class="text-white text-sm whitespace-pre-wrap break-words flex-1">${escapeHtml(note.text)}</p>
+            <button onclick="window.togglePin('${note.id}', ${!note.isPinned})" class="text-xs ${note.isPinned ? 'text-yellow-400' : 'text-gray-500 hover:text-gray-300'} ml-1">
+              <i class="fa-solid fa-thumbtack ${note.isPinned ? '' : 'rotate-45'}"></i>
+            </button>
+          </div>
+          
+          <div class="flex justify-between items-center text-[11px] text-gray-400 pt-2 border-t border-gray-700/60 mt-1">
+            <span>${formatDate(note.createdAt)}</span>
+            <div class="flex items-center gap-3">
+              <button onclick="window.copyText('${escapeForJs(note.text)}')" class="hover:text-blue-400 flex items-center gap-1" title="কপি করুন">
+                <i class="fa-regular fa-copy"></i> কপি
+              </button>
+              <button onclick="window.startEdit('${note.id}')" class="hover:text-yellow-400 flex items-center gap-1" title="এডিট করুন">
+                <i class="fa-regular fa-pen-to-square"></i> এডিট
+              </button>
+              <button onclick="window.deleteNote('${note.id}')" class="hover:text-red-400 flex items-center gap-1" title="মুছুন">
+                <i class="fa-regular fa-trash-can"></i> মুছুন
+              </button>
+            </div>
+          </div>
+        `;
+        notesList.appendChild(card);
+      });
     }
+
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.innerText = text;
+      return div.innerHTML;
+    }
+
+    function escapeForJs(text) {
+      return encodeURIComponent(text);
+    }
+
+    window.copyText = (encodedText) => {
+      const text = decodeURIComponent(encodedText);
+      navigator.clipboard.writeText(text).then(() => {
+        showToast("নোট কপি হয়েছে!");
+      });
+    };
+
+    window.togglePin = async (id, newPinnedState) => {
+      await updateDoc(doc(db, "notes", id), {
+        isPinned: newPinnedState
+      });
+    };
+
+    window.startEdit = (id) => {
+      const note = allNotes.find(n => n.id === id);
+      if (!note) return;
+      editNoteId.value = note.id;
+      noteInput.value = note.text;
+      categorySelect.value = note.category || "general";
+      submitBtnText.innerText = "আপডেট করুন";
+      cancelEditBtn.classList.remove("hidden");
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      noteInput.focus();
+    };
+
+    window.deleteNote = async (id) => {
+      if (confirm("আপনি কি নিশ্চিত এই নোটটি মুছে ফেলতে চান?")) {
+        await deleteDoc(doc(db, "notes", id));
+        showToast("নোট মুছে ফেলা হয়েছে");
+      }
+    };
   </script>
 </body>
 </html>
