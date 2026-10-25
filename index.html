@@ -6,88 +6,140 @@
   <title>Apu's Notes</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
-    body { font-family: system-ui, -apple-system, sans-serif; }
-    .card-urgent { border-left: 4px solid #ef4444; }
-    .card-work { border-left: 4px solid #3b82f6; }
-    .card-personal { border-left: 4px solid #10b981; }
-    .card-general { border-left: 4px solid #6b7280; }
+    body { 
+      font-family: 'Plus Jakarta Sans', 'Hind Siliguri', sans-serif; 
+      background: radial-gradient(circle at top right, #1e1b4b, #0f172a 40%, #030712 100%);
+      background-attachment: fixed;
+    }
+    .glass-card {
+      background: rgba(30, 41, 59, 0.6);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .glass-input {
+      background: rgba(15, 23, 42, 0.7);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    .glass-input:focus {
+      border-color: #6366f1;
+      box-shadow: 0 0 20px rgba(99, 102, 241, 0.25);
+    }
+    .card-urgent { border-left: 4px solid #f43f5e !important; }
+    .card-work { border-left: 4px solid #38bdf8 !important; }
+    .card-personal { border-left: 4px solid #34d399 !important; }
+    .card-general { border-left: 4px solid #94a3b8 !important; }
+    ::-webkit-scrollbar { width: 5px; }
+    ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.15); border-radius: 10px; }
   </style>
 </head>
-<body class="bg-gray-900 text-gray-100 min-h-screen p-4 flex flex-col items-center pb-20">
+<body class="text-slate-100 min-h-screen p-3 sm:p-5 flex flex-col items-center pb-24 selection:bg-indigo-500 selection:text-white">
   <div class="w-full max-w-lg">
     <!-- Header -->
-    <header class="flex justify-between items-center py-4 border-b border-gray-800">
-      <div class="flex items-center gap-2.5">
-        <!-- Logo Image / Emoji -->
-        <img id="titleAvatar" src="" alt="Profile" class="w-9 h-9 rounded-full border-2 border-blue-500 object-cover hidden shadow">
-        <span id="defaultLogo" class="text-2xl">📝</span>
-        <h1 class="text-xl font-bold tracking-wide">Apu's Notes</h1>
+    <header class="flex justify-between items-center py-4 px-2 mb-3">
+      <div class="flex items-center gap-3">
+        <div class="relative">
+          <img id="titleAvatar" src="" alt="Profile" class="w-10 h-10 rounded-full border-2 border-indigo-400/80 object-cover hidden shadow-lg shadow-indigo-500/20">
+          <div id="defaultLogo" class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-indigo-600 to-violet-500 flex items-center justify-center text-xl shadow-lg shadow-indigo-500/25">📝</div>
+          <span class="absolute bottom-0 right-0 w-3 h-3 bg-emerald-500 border-2 border-slate-900 rounded-full"></span>
+        </div>
+        <div>
+          <h1 class="text-lg font-bold tracking-tight text-white flex items-center gap-1.5">
+            Apu's Notes
+            <span class="text-[10px] uppercase font-semibold tracking-wider bg-indigo-500/20 text-indigo-300 px-2 py-0.5 rounded-full border border-indigo-500/30">Pro</span>
+          </h1>
+          <p class="text-[11px] text-slate-400 font-medium">ব্যক্তিগত ক্লাউড নোটপ্যাড</p>
+        </div>
       </div>
-      <button id="loginBtn" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl text-sm font-semibold transition">লগইন</button>
-      <div id="userSection" class="hidden flex items-center gap-2.5">
-        <span id="userName" class="text-xs text-gray-300 font-medium"></span>
-        <button id="logoutBtn" class="bg-red-500/20 text-red-400 hover:bg-red-500/30 px-3 py-1.5 rounded-lg text-xs font-medium transition">লগআউট</button>
+      
+      <button id="loginBtn" class="bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white px-4 py-2 rounded-xl text-xs font-semibold shadow-lg shadow-indigo-600/30 transition-all duration-200">লগইন</button>
+      
+      <div id="userSection" class="hidden flex items-center gap-2.5 bg-slate-800/60 border border-white/5 py-1 px-2.5 rounded-2xl backdrop-blur-md">
+        <span id="userName" class="text-xs text-slate-300 font-medium max-w-[90px] truncate"></span>
+        <button id="logoutBtn" class="bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 p-1.5 rounded-xl transition" title="লগআউট">
+          <i class="fa-solid fa-arrow-right-from-bracket text-xs"></i>
+        </button>
       </div>
     </header>
 
     <!-- Main Content Area -->
-    <main id="appContent" class="hidden">
-      <!-- Search Bar -->
-      <div class="mt-4 relative">
-        <i class="fa-solid fa-magnifying-glass absolute left-3 top-3 text-gray-400 text-sm"></i>
-        <input type="text" id="searchInput" placeholder="নোট খুঁজুন..." class="w-full bg-gray-800 text-white pl-9 pr-4 py-2.5 rounded-xl border border-gray-700 focus:outline-none focus:border-blue-500 text-sm">
+    <main id="appContent" class="hidden space-y-4">
+      <!-- Search & Sort Row -->
+      <div class="flex gap-2">
+        <div class="relative flex-1">
+          <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3 text-slate-400 text-xs"></i>
+          <input type="text" id="searchInput" placeholder="নোট খুঁজুন..." class="w-full glass-input text-white pl-9 pr-3 py-2 rounded-2xl text-xs outline-none transition placeholder:text-slate-500">
+        </div>
+        
+        <div class="flex items-center glass-input rounded-2xl px-3 border border-white/10">
+          <i class="fa-solid fa-arrow-down-short-wide text-indigo-400 text-xs mr-2"></i>
+          <select id="sortSelect" class="bg-transparent text-xs text-slate-300 focus:outline-none py-2 cursor-pointer font-medium">
+            <option value="newest" class="bg-slate-900 text-white">নতুন আগে</option>
+            <option value="oldest" class="bg-slate-900 text-white">পুরোনো আগে</option>
+            <option value="az" class="bg-slate-900 text-white">A-Z ক্রম</option>
+          </select>
+        </div>
       </div>
 
-      <!-- Add/Edit Note Form -->
-      <form id="noteForm" class="mt-4 bg-gray-800 p-4 rounded-2xl border border-gray-700 shadow-lg">
+      <!-- Add/Edit Note Card -->
+      <form id="noteForm" class="glass-card p-4 rounded-3xl shadow-2xl relative overflow-hidden">
         <input type="hidden" id="editNoteId" value="">
-        <textarea id="noteInput" rows="3" placeholder="নতুন কিছু লিখুন..." required class="w-full bg-gray-900 text-white p-3 rounded-xl border border-gray-700 focus:outline-none focus:border-blue-500 text-sm resize-none"></textarea>
+        <textarea id="noteInput" rows="3" placeholder="মন মতো নতুন কোনো নোট লিখুন..." required class="w-full glass-input text-slate-100 p-3.5 rounded-2xl text-sm focus:outline-none transition resize-none placeholder:text-slate-500"></textarea>
         
         <div class="mt-3 flex flex-wrap justify-between items-center gap-2">
           <!-- Category Selector -->
-          <div class="flex items-center gap-1.5">
-            <label class="text-xs text-gray-400">ক্যাটাগরি:</label>
-            <select id="categorySelect" class="bg-gray-900 text-xs text-white border border-gray-700 rounded-lg px-2 py-1.5 focus:outline-none">
-              <option value="general">সাধারণ ⚪</option>
-              <option value="personal">ব্যক্তিগত 🟢</option>
-              <option value="work">কাজের 🔵</option>
-              <option value="urgent">জরুরি 🔴</option>
+          <div class="flex items-center gap-1.5 bg-slate-900/60 px-2.5 py-1 rounded-xl border border-white/5">
+            <span class="text-[11px] text-slate-400 font-medium">ট্যাগ:</span>
+            <select id="categorySelect" class="bg-transparent text-xs text-slate-200 focus:outline-none cursor-pointer font-medium">
+              <option value="general" class="bg-slate-900">সাধারণ ⚪</option>
+              <option value="personal" class="bg-slate-900">ব্যক্তিগত 🟢</option>
+              <option value="work" class="bg-slate-900">অফিস/কাজ 🔵</option>
+              <option value="urgent" class="bg-slate-900">জরুরি 🔴</option>
             </select>
           </div>
 
           <div class="flex items-center gap-2">
-            <button type="button" id="cancelEditBtn" class="hidden text-xs text-gray-400 hover:text-white px-3 py-2">বাতিল</button>
-            <button type="submit" id="submitBtn" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-1.5 rounded-xl text-xs font-semibold transition flex items-center gap-1.5">
-              <i class="fa-solid fa-plus"></i> <span id="submitBtnText">নোট যোগ করুন</span>
+            <button type="button" id="cancelEditBtn" class="hidden text-xs text-slate-400 hover:text-white px-3 py-1.5 rounded-xl transition">বাতিল</button>
+            <button type="submit" id="submitBtn" class="bg-gradient-to-r from-indigo-500 via-indigo-600 to-violet-600 hover:opacity-95 text-white px-4 py-2 rounded-xl text-xs font-semibold shadow-md shadow-indigo-600/30 transition flex items-center gap-1.5 active:scale-95">
+              <i class="fa-solid fa-feather-pointed"></i> <span id="submitBtnText">সেভ করুন</span>
             </button>
           </div>
         </div>
       </form>
 
-      <!-- Notes Count & Status -->
-      <div class="mt-6 flex justify-between items-center text-xs text-gray-400 px-1">
-        <span id="notesCount">মোট নোট: ০</span>
-        <span class="text-gray-500">স্বয়ংক্রিয় ক্লাউড সিঙ্ক</span>
+      <!-- Stats -->
+      <div class="flex justify-between items-center text-[11px] text-slate-400 px-2 pt-1 font-medium">
+        <span id="notesCount" class="bg-slate-800/80 px-2.5 py-1 rounded-full border border-white/5">মোট নোট: ০</span>
+        <span class="flex items-center gap-1.5 text-slate-400">
+          <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> ক্লাউড সিঙ্ক চালু
+        </span>
       </div>
 
       <!-- Notes List -->
-      <div id="notesList" class="mt-3 flex flex-col gap-3">
-        <p class="text-gray-500 text-center text-sm py-6">লোড হচ্ছে...</p>
+      <div id="notesList" class="space-y-3 pt-1">
+        <p class="text-slate-500 text-center text-sm py-8">লোড হচ্ছে...</p>
       </div>
     </main>
 
-    <!-- Signed Out Alert -->
-    <div id="loggedOutView" class="mt-16 text-center py-10">
-      <div class="text-5xl mb-3">🔒</div>
-      <h2 class="text-lg font-semibold text-white">নোট অ্যাক্সেস করতে লগইন করুন</h2>
-      <p class="text-xs text-gray-400 mt-1">আপনার ডেটা ক্লাউডে সুরক্ষিত থাকবে</p>
+    <!-- Signed Out View -->
+    <div id="loggedOutView" class="mt-20 text-center p-8 glass-card rounded-3xl shadow-2xl border border-white/10">
+      <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center mx-auto text-2xl shadow-xl shadow-indigo-500/20 mb-4">
+        🔒
+      </div>
+      <h2 class="text-lg font-bold text-white">আপনার নোটবুক সুরক্ষিত</h2>
+      <p class="text-xs text-slate-400 mt-1 max-w-xs mx-auto">নোট লিখতে ও ক্লাউডে সিঙ্ক রাখতে আপনার গুগল অ্যাকাউন্ট দিয়ে সাইন-ইন করুন।</p>
     </div>
   </div>
 
-  <!-- Notification Toast -->
-  <div id="toast" class="fixed bottom-6 bg-gray-800 text-white border border-gray-700 px-4 py-2 rounded-xl text-xs shadow-2xl transition transform translate-y-20 opacity-0 pointer-events-none">
-    কপি হয়েছে!
+  <!-- Modern Floating Toast -->
+  <div id="toast" class="fixed bottom-6 bg-slate-800/90 backdrop-blur-xl text-white border border-white/10 px-4 py-2 rounded-2xl text-xs shadow-2xl transition-all duration-300 transform translate-y-24 opacity-0 pointer-events-none flex items-center gap-2">
+    <i class="fa-solid fa-circle-check text-emerald-400"></i>
+    <span id="toastMsg">কপি হয়েছে!</span>
   </div>
 
   <script type="module">
@@ -129,8 +181,10 @@
     const submitBtnText = document.getElementById("submitBtnText");
     const notesList = document.getElementById("notesList");
     const searchInput = document.getElementById("searchInput");
+    const sortSelect = document.getElementById("sortSelect");
     const notesCount = document.getElementById("notesCount");
     const toast = document.getElementById("toast");
+    const toastMsg = document.getElementById("toastMsg");
 
     loginBtn.onclick = () => signInWithPopup(auth, provider).catch(err => alert("Login Error: " + err.message));
     logoutBtn.onclick = () => signOut(auth);
@@ -166,11 +220,11 @@
     });
 
     function showToast(message) {
-      toast.innerText = message;
-      toast.classList.remove("translate-y-20", "opacity-0");
+      toastMsg.innerText = message;
+      toast.classList.remove("translate-y-24", "opacity-0");
       setTimeout(() => {
-        toast.classList.add("translate-y-20", "opacity-0");
-      }, 2000);
+        toast.classList.add("translate-y-24", "opacity-0");
+      }, 2200);
     }
 
     noteForm.onsubmit = async (e) => {
@@ -199,7 +253,7 @@
             createdAt: Date.now()
           });
           resetForm();
-          showToast("নতুন নোট যোগ করা হয়েছে!");
+          showToast("নোট সফলভাবে যুক্ত হয়েছে!");
         }
       } catch (err) {
         alert("Error: " + err.message);
@@ -212,14 +266,23 @@
       editNoteId.value = "";
       noteInput.value = "";
       categorySelect.value = "general";
-      submitBtnText.innerText = "নোট যোগ করুন";
+      submitBtnText.innerText = "সেভ করুন";
       cancelEditBtn.classList.add("hidden");
     }
 
     function formatDate(timestamp) {
       if (!timestamp) return "";
       const d = new Date(timestamp);
-      return d.toLocaleDateString("bn-BD", { day: "numeric", month: "short", year: "numeric" }) + " " + d.toLocaleTimeString("bn-BD", { hour: "2-digit", minute: "2-digit" });
+      return d.toLocaleDateString("bn-BD", { day: "numeric", month: "short", year: "numeric" }) + " • " + d.toLocaleTimeString("bn-BD", { hour: "2-digit", minute: "2-digit" });
+    }
+
+    function getCategoryBadge(cat) {
+      switch(cat) {
+        case 'urgent': return `<span class="bg-rose-500/10 text-rose-400 border border-rose-500/20 text-[10px] font-semibold px-2 py-0.5 rounded-full">জরুরি</span>`;
+        case 'work': return `<span class="bg-sky-500/10 text-sky-400 border border-sky-500/20 text-[10px] font-semibold px-2 py-0.5 rounded-full">কাজের</span>`;
+        case 'personal': return `<span class="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-[10px] font-semibold px-2 py-0.5 rounded-full">ব্যক্তিগত</span>`;
+        default: return `<span class="bg-slate-700/40 text-slate-400 border border-slate-600/30 text-[10px] font-semibold px-2 py-0.5 rounded-full">সাধারণ</span>`;
+      }
     }
 
     function loadNotes(uid) {
@@ -232,18 +295,23 @@
         renderNotes();
       }, (error) => {
         console.error(error);
-        notesList.innerHTML = "<p class='text-red-400 text-center text-sm'>ডাটাবেজ লোড হচ্ছে না</p>";
+        notesList.innerHTML = "<p class='text-rose-400 text-center text-sm py-4'>ডাটাবেজ লোড হচ্ছে না</p>";
       });
     }
 
     searchInput.oninput = () => renderNotes();
+    sortSelect.onchange = () => renderNotes();
 
     function renderNotes() {
       const searchTerm = searchInput.value.toLowerCase();
+      const sortMode = sortSelect.value;
+
       let filtered = allNotes.filter(n => (n.text || "").toLowerCase().includes(searchTerm));
 
       filtered.sort((a, b) => {
         if (b.isPinned !== a.isPinned) return (b.isPinned ? 1 : 0) - (a.isPinned ? 1 : 0);
+        if (sortMode === "oldest") return (a.createdAt || 0) - (b.createdAt || 0);
+        if (sortMode === "az") return (a.text || "").localeCompare(b.text || "");
         return (b.createdAt || 0) - (a.createdAt || 0);
       });
 
@@ -251,34 +319,43 @@
       notesList.innerHTML = "";
 
       if (filtered.length === 0) {
-        notesList.innerHTML = "<p class='text-gray-500 text-center text-sm py-6'>কোনো নোট পাওয়া যায়নি</p>";
+        notesList.innerHTML = `
+          <div class="text-center py-12 text-slate-500">
+            <i class="fa-regular fa-clipboard text-3xl mb-2 opacity-40"></i>
+            <p class="text-xs">কোনো নোট পাওয়া যায়নি</p>
+          </div>
+        `;
         return;
       }
 
       filtered.forEach((note) => {
         const categoryClass = `card-${note.category || 'general'}`;
         const card = document.createElement("div");
-        card.className = `bg-gray-800 p-4 rounded-2xl shadow border border-gray-700 flex flex-col gap-2 ${categoryClass}`;
+        card.className = `glass-card p-4 rounded-3xl shadow-xl transition-all duration-200 flex flex-col gap-3 relative ${categoryClass}`;
         
         card.innerHTML = `
-          <div class="flex justify-between items-start gap-2">
-            <p class="text-white text-sm whitespace-pre-wrap break-words flex-1">${escapeHtml(note.text)}</p>
-            <button onclick="window.togglePin('${note.id}', ${!note.isPinned})" class="text-xs ${note.isPinned ? 'text-yellow-400' : 'text-gray-500 hover:text-gray-300'} ml-1">
-              <i class="fa-solid fa-thumbtack ${note.isPinned ? '' : 'rotate-45'}"></i>
+          <div class="flex justify-between items-start gap-2.5">
+            <p class="text-slate-100 text-sm whitespace-pre-wrap break-words flex-1 leading-relaxed">${escapeHtml(note.text)}</p>
+            <button onclick="window.togglePin('${note.id}', ${!note.isPinned})" class="p-1 rounded-xl transition ${note.isPinned ? 'text-amber-400' : 'text-slate-500 hover:text-slate-300'}" title="${note.isPinned ? 'আনপিন করুন' : 'পিন করুন'}">
+              <i class="fa-solid fa-thumbtack text-xs ${note.isPinned ? '' : 'rotate-45'}"></i>
             </button>
           </div>
           
-          <div class="flex justify-between items-center text-[11px] text-gray-400 pt-2 border-t border-gray-700/60 mt-1">
-            <span>${formatDate(note.createdAt)}</span>
-            <div class="flex items-center gap-3">
-              <button onclick="window.copyText('${escapeForJs(note.text)}')" class="hover:text-blue-400 flex items-center gap-1" title="কপি করুন">
-                <i class="fa-regular fa-copy"></i> কপি
+          <div class="flex justify-between items-center text-[11px] text-slate-400 pt-2.5 border-t border-white/5">
+            <div class="flex items-center gap-2">
+              ${getCategoryBadge(note.category)}
+              <span class="text-[10px] text-slate-400 font-medium">${formatDate(note.createdAt)}</span>
+            </div>
+            
+            <div class="flex items-center gap-2">
+              <button onclick="window.copyText('${escapeForJs(note.text)}')" class="bg-slate-700/30 hover:bg-slate-700/60 text-slate-300 hover:text-indigo-400 px-2 py-1 rounded-lg transition text-xs" title="কপি করুন">
+                <i class="fa-regular fa-copy"></i>
               </button>
-              <button onclick="window.startEdit('${note.id}')" class="hover:text-yellow-400 flex items-center gap-1" title="এডিট করুন">
-                <i class="fa-regular fa-pen-to-square"></i> এডিট
+              <button onclick="window.startEdit('${note.id}')" class="bg-slate-700/30 hover:bg-slate-700/60 text-slate-300 hover:text-amber-400 px-2 py-1 rounded-lg transition text-xs" title="এডিট করুন">
+                <i class="fa-regular fa-pen-to-square"></i>
               </button>
-              <button onclick="window.deleteNote('${note.id}')" class="hover:text-red-400 flex items-center gap-1" title="মুছুন">
-                <i class="fa-regular fa-trash-can"></i> মুছুন
+              <button onclick="window.deleteNote('${note.id}')" class="bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 px-2 py-1 rounded-lg transition text-xs" title="মুছুন">
+                <i class="fa-regular fa-trash-can"></i>
               </button>
             </div>
           </div>
@@ -300,7 +377,7 @@
     window.copyText = (encodedText) => {
       const text = decodeURIComponent(encodedText);
       navigator.clipboard.writeText(text).then(() => {
-        showToast("নোট কপি হয়েছে!");
+        showToast("ক্লিপবোর্ডে কপি হয়েছে!");
       });
     };
 
@@ -325,7 +402,7 @@
     window.deleteNote = async (id) => {
       if (confirm("আপনি কি নিশ্চিত এই নোটটি মুছে ফেলতে চান?")) {
         await deleteDoc(doc(db, "notes", id));
-        showToast("নোট মুছে ফেলা হয়েছে");
+        showToast("নোট মুছে ফেলা হয়েছে!");
       }
     };
   </script>
