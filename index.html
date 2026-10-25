@@ -30,7 +30,7 @@
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-    import { getFirestore, collection, addDoc, query, where, onSnapshot, deleteDoc, doc, serverTimestamp, orderBy } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+    import { getFirestore, collection, addDoc, query, where, onSnapshot, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyCJXc8miGg_6bAZCb_SpYfGelwzxhA3bpw",
@@ -83,7 +83,7 @@
           await addDoc(collection(db, "notes"), {
             uid: currentUser.uid,
             text: text,
-            createdAt: serverTimestamp()
+            createdAt: Date.now()
           });
           noteInput.value = "";
         } catch (err) {
@@ -92,20 +92,25 @@
       };
 
       function loadNotes(uid) {
-        const q = query(collection(db, "notes"), where("uid", "==", uid), orderBy("createdAt", "desc"));
+        const q = query(collection(db, "notes"), where("uid", "==", uid));
         onSnapshot(q, (snapshot) => {
           notesList.innerHTML = "";
           if (snapshot.empty) {
             notesList.innerHTML = "<p class='text-gray-500 text-center text-sm'>কোনো নোট নেই</p>";
             return;
           }
+          const docs = [];
           snapshot.forEach((docSnap) => {
-            const data = docSnap.data();
+            docs.push({ id: docSnap.id, ...docSnap.data() });
+          });
+          docs.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+
+          docs.forEach((item) => {
             const card = document.createElement("div");
             card.className = "bg-gray-800 p-4 rounded-xl flex justify-between items-center shadow border border-gray-700";
             card.innerHTML = `
-              <p class="text-white text-sm break-words">${data.text}</p>
-              <button onclick="window.deleteNote('${docSnap.id}')" class="text-red-400 hover:text-red-600 ml-4 font-bold text-xs">মুছুন</button>
+              <p class="text-white text-sm break-words">${item.text}</p>
+              <button onclick="window.deleteNote('${item.id}')" class="text-red-400 hover:text-red-600 ml-4 font-bold text-xs">মুছুন</button>
             `;
             notesList.appendChild(card);
           });
