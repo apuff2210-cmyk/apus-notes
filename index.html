@@ -23,4 +23,105 @@
     </form>
 
     <div id="notesList" class="mt-6 flex flex-col gap-3">
-      <p class="text-gray-400 text-center text-sm">
+      <p class="text-gray-400 text-center text-sm">লোড হচ্ছে...</p>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+    import { getFirestore, collection, addDoc, query, where, onSnapshot, deleteDoc, doc, serverTimestamp, orderBy } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCJXc8miGg_6bAZCb_SpYfGelwzxhA3bpw",
+      authDomain: "apu-s-notes.firebaseapp.com",
+      projectId: "apu-s-notes",
+      storageBucket: "apu-s-notes.firebasestorage.app",
+      messagingSenderId: "469045356302",
+      appId: "1:469045356302:web:9db39c7df9564ca4c1995f",
+      measurementId: "G-T6ELLRKVM4"
+    };
+
+    try {
+      const app = initializeApp(firebaseConfig);
+      const auth = getAuth(app);
+      const db = getFirestore(app);
+      const provider = new GoogleAuthProvider();
+
+      let currentUser = null;
+
+      const loginBtn = document.getElementById("loginBtn");
+      const logoutBtn = document.getElementById("logoutBtn");
+      const userSection = document.getElementById("userSection");
+      const userName = document.getElementById("userName");
+      const noteForm = document.getElementById("noteForm");
+      const noteInput = document.getElementById("noteInput");
+      const notesList = document.getElementById("notesList");
+
+      loginBtn.onclick = () => signInWithPopup(auth, provider).catch(err => alert("Login Error: " + err.message));
+      logoutBtn.onclick = () => signOut(auth);
+
+      onAuthStateChanged(auth, (user) => {
+        currentUser = user;
+        if (user) {
+          userSection.classList.remove("hidden");
+          loginBtn.classList.add("hidden");
+          userName.innerText = user.displayName || "User";
+          loadNotes(user.uid);
+        } else {
+          userSection.classList.add("hidden");
+          loginBtn.classList.remove("hidden");
+          notesList.innerHTML = "<p class='text-gray-400 text-center text-sm'>নোট সেভ করতে লগইন করুন</p>";
+        }
+      });
+
+      noteForm.onsubmit = async (e) => {
+        e.preventDefault();
+        const text = noteInput.value.trim();
+        if (!text || !currentUser) return;
+        try {
+          await addDoc(collection(db, "notes"), {
+            uid: currentUser.uid,
+            text: text,
+            createdAt: serverTimestamp()
+          });
+          noteInput.value = "";
+        } catch (err) {
+          alert("Error: " + err.message);
+        }
+      };
+
+      function loadNotes(uid) {
+        const q = query(collection(db, "notes"), where("uid", "==", uid), orderBy("createdAt", "desc"));
+        onSnapshot(q, (snapshot) => {
+          notesList.innerHTML = "";
+          if (snapshot.empty) {
+            notesList.innerHTML = "<p class='text-gray-500 text-center text-sm'>কোনো নোট নেই</p>";
+            return;
+          }
+          snapshot.forEach((docSnap) => {
+            const data = docSnap.data();
+            const card = document.createElement("div");
+            card.className = "bg-gray-800 p-4 rounded-xl flex justify-between items-center shadow border border-gray-700";
+            card.innerHTML = `
+              <p class="text-white text-sm break-words">${data.text}</p>
+              <button onclick="window.deleteNote('${docSnap.id}')" class="text-red-400 hover:text-red-600 ml-4 font-bold text-xs">মুছুন</button>
+            `;
+            notesList.appendChild(card);
+          });
+        }, (error) => {
+          console.error(error);
+          notesList.innerHTML = "<p class='text-red-400 text-center text-sm'>ডাটাবেজ লোড হচ্ছে না</p>";
+        });
+      }
+
+      window.deleteNote = async (id) => {
+        await deleteDoc(doc(db, "notes", id));
+      };
+    } catch (e) {
+      console.error(e);
+      document.getElementById("notesList").innerHTML = "<p class='text-red-400 text-center text-sm'>কনফিগ এরর</p>";
+    }
+  </script>
+</body>
+</html>
