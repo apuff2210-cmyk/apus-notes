@@ -5,74 +5,22 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Apu's Notes</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-    import { getFirestore, collection, addDoc, query, where, onSnapshot, deleteDoc, doc, serverTimestamp, orderBy } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+</head>
+<body class="bg-gray-900 text-white min-h-screen p-4 flex flex-col items-center">
+  <div class="w-full max-w-md">
+    <header class="flex justify-between items-center py-4 border-b border-gray-700">
+      <h1 class="text-2xl font-bold tracking-wide">📝 Apu's Notes</h1>
+      <button id="loginBtn" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-semibold">লগইন</button>
+      <div id="userSection" class="hidden flex items-center gap-2">
+        <span id="userName" class="text-xs text-gray-300"></span>
+        <button id="logoutBtn" class="bg-red-500/20 text-red-400 px-3 py-1 rounded text-xs">লগআউট</button>
+      </div>
+    </header>
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyCJXc8rlGg_6bAZCb_SpYfGe",
-      authDomain: "apu-s-notes.firebaseapp.com",
-      projectId: "apu-s-notes",
-      storageBucket: "apu-s-notes.firebasestorage.app",
-      messagingSenderId: "469045356302",
-      appId: "1:469045356302:web:9db39c7df950ce4c1995f"
-    };
+    <form id="noteForm" class="mt-6 flex gap-2">
+      <input type="text" id="noteInput" placeholder="নতুন কিছু লিখুন..." required class="flex-1 bg-gray-800 text-white px-4 py-2 rounded-lg focus:outline-none border border-gray-700 focus:border-blue-500 text-sm">
+      <button type="submit" class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg font-semibold text-sm">+</button>
+    </form>
 
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getFirestore(app);
-    const provider = new GoogleAuthProvider();
-
-    let currentUser = null;
-
-    const loginBtn = document.getElementById("loginBtn");
-    const logoutBtn = document.getElementById("logoutBtn");
-    const userSection = document.getElementById("userSection");
-    const userName = document.getElementById("userName");
-    const noteForm = document.getElementById("noteForm");
-    const noteInput = document.getElementById("noteInput");
-    const notesList = document.getElementById("notesList");
-
-    loginBtn.onclick = () => signInWithPopup(auth, provider);
-    logoutBtn.onclick = () => signOut(auth);
-
-    onAuthStateChanged(auth, (user) => {
-      currentUser = user;
-      if (user) {
-        userSection.classList.remove("hidden");
-        loginBtn.classList.add("hidden");
-        userName.innerText = user.displayName;
-        loadNotes(user.uid);
-      } else {
-        userSection.classList.add("hidden");
-        loginBtn.classList.remove("hidden");
-        notesList.innerHTML = "<p class='text-gray-400 text-center'>নোট দেখতে লগইন করুন</p>";
-      }
-    });
-
-    noteForm.onsubmit = async (e) => {
-      e.preventDefault();
-      const text = noteInput.value.trim();
-      if (!text || !currentUser) return;
-      await addDoc(collection(db, "notes"), {
-        uid: currentUser.uid,
-        text: text,
-        createdAt: serverTimestamp()
-      });
-      noteInput.value = "";
-    };
-
-    function loadNotes(uid) {
-      const q = query(collection(db, "notes"), where("uid", "==", uid), orderBy("createdAt", "desc"));
-      onSnapshot(q, (snapshot) => {
-        notesList.innerHTML = "";
-        snapshot.forEach((docSnap) => {
-          const data = docSnap.data();
-          const card = document.createElement("div");
-          card.className = "bg-gray-800 p-4 rounded-xl flex justify-between items-center shadow border border-gray-700";
-          card.innerHTML = `
-            <p class="text-white text-base">${data.text}</p>
-            <button onclick="deleteNote('${docSnap.id}')" class="text-red-400 hover:text-red-600 ml-4 font-bold text-sm">মুছুন</button>
-          `;
-          notes
+    <div id="notesList" class="mt-6 flex flex-col gap-3">
+      <p class="text-gray-400 text-center text-sm">
